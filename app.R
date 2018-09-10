@@ -70,8 +70,8 @@ ui <- fluidPage(
   mainPanel(
     plotlyOutput("plot", width = "150%", height = "100%"),
     htmlOutput("legend"),
-    textOutput("group1_numbers"),
-    textOutput("group2_numbers"))
+    htmlOutput("text"))
+   
 )
 
 
@@ -229,6 +229,41 @@ server <- function(input, output){
         plot.title = element_text(size = 14, face = "bold", hjust = 0)
       )
   })
+  
+  # Text under graph
+  output$legend <- renderUI({
+    HTML(paste("Proteins above black line have a p-value < 0.05", 
+               "Proteins above dashed line have a p-value < 0.1" , sep="<br/>"))
+  })
+  
+  
+  output$text <- renderUI({ 
+    if(input$visit == "Visit 1 vs 4"){
+      visit_1_num <- unique(stats_dataset()$count.1)
+      visit_2_num <- unique(stats_dataset()$count.2)
+      group_1 <- "Visit 1"
+      group_2 <- "Visit 4"
+    } else if(input$visit == "Visit 1 vs 5") {
+      visit_1_num <- unique(stats_dataset()$count.1)
+      visit_2_num <- unique(stats_dataset()$count.2)
+      group_1 <- "Visit 1"
+      group_2 <- "Visit 5"
+    } else if(input$visit == "Acute vs Conv") {
+      visit_1_num <- unique(stats_dataset()$count.1)
+      visit_2_num <- unique(stats_dataset()$count.2)
+      group_1 <- "Acute"
+      group_2 <- "Convalescent"
+    } else {
+      stopApp("Invalid text below graph")}
+    
+    str1 <- paste0("# of Patients in ", group_1, ": ", visit_1_num)
+    str2 <- paste0("# of Patients in ", group_2, ": ", visit_2_num)
+    
+    HTML(paste(str1, str2, sep = "<br/>"))
+  })
+  
+  
+
  }
 
 shinyApp(server = server, ui = ui)
